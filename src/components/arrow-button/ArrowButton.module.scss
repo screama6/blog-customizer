@@ -25,6 +25,10 @@
 	transition: transform 0.5s ease;
 }
 
-.arrow_open {
+.container:hover {
+	background-color: #ffc802;
+}
+
+.arrowOpen {
 	transform: rotate(0deg);
 }
