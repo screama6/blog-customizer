@@ -1,6 +1,7 @@
 import { ArrowButton } from 'components/arrow-button';
 import { Button } from 'components/button';
 import { useRef, useState } from 'react';
+import { Text } from 'components/text';
 import clsx from 'clsx';
 import styles from './ArticleParamsForm.module.scss';
 import { Select } from '../select/Select';
@@ -16,6 +17,7 @@ import {
 } from 'src/constants/articleProps';
 import { RadioGroup } from '../radio-group';
 import { Separator } from '../separator';
+import { useOutsideClickClose } from '../select/hooks/useOutsideClickClose';
 
 type ArticleParamsFormType = {
 	currentArticleState: ArticleStateType;
@@ -26,26 +28,26 @@ export const ArticleParamsForm = ({
 	currentArticleState,
 	setCurrentArticleState,
 }: ArticleParamsFormType) => {
-	const [openMenu, setOpenMenu] = useState<boolean>(false);
+	const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
 	const [selected, setSelected] =
 		useState<ArticleStateType>(currentArticleState);
 	const rootRef = useRef<HTMLDivElement>(null);
 
 	const openForm = () => {
-		!openMenu ? setOpenMenu(true) : setOpenMenu(false);
+		!isMenuOpen ? setIsMenuOpen(true) : setIsMenuOpen(false);
 	};
 
 	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		setCurrentArticleState(selected);
-		setOpenMenu(false);
+		setIsMenuOpen(false);
 	};
 
 	const handleReset = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		setSelected(defaultArticleState);
 		setCurrentArticleState(defaultArticleState);
-		setOpenMenu(false);
+		setIsMenuOpen(false);
 	};
 
 	function handleChange(name: keyof ArticleStateType, value: OptionType) {
@@ -55,19 +57,27 @@ export const ArticleParamsForm = ({
 		}));
 	}
 
+	useOutsideClickClose({
+		isOpen: isMenuOpen,
+		rootRef,
+		onChange: setIsMenuOpen,
+	});
+
 	return (
-		<>
-			<ArrowButton onClick={openForm} isOpen={openMenu} />
+		<div ref={rootRef}>
+			<ArrowButton onClick={openForm} isOpen={isMenuOpen} />
 			<aside
-				ref={rootRef}
 				className={clsx({
 					[styles.container]: true,
-					[styles.container_open]: openMenu,
+					[styles.container_open]: isMenuOpen,
 				})}>
 				<form
 					onSubmit={handleSubmit}
 					onReset={handleReset}
 					className={styles.form}>
+					<Text weight={800} uppercase size={31}>
+						{'Задайте параметры'}
+					</Text>
 					<Select
 						selected={selected.fontFamilyOption}
 						onChange={(value) => handleChange('fontFamilyOption', value)}
@@ -106,6 +116,6 @@ export const ArticleParamsForm = ({
 					</div>
 				</form>
 			</aside>
-		</>
+		</div>
 	);
 };
